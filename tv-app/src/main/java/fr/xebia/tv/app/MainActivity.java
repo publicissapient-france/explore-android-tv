@@ -21,21 +21,15 @@ import android.net.nsd.NsdServiceInfo;
 import android.os.Bundle;
 import android.widget.TextView;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
-import java.net.Socket;
 
 /*
  * MainActivity class that loads MainFragment
  */
 public class MainActivity extends Activity {
 
-    private ServerSocket mServerSocket;
-    private int mLocalPort;
     private NsdManager mNsdManager;
-    private String mServiceName;
 
     private NsdManager.RegistrationListener mRegistrationListener = new NsdManager.RegistrationListener() {
         @Override public void onRegistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
@@ -47,13 +41,14 @@ public class MainActivity extends Activity {
         }
 
         @Override public void onServiceRegistered(NsdServiceInfo serviceInfo) {
-            mServiceName = serviceInfo.getServiceName();
+
         }
 
         @Override public void onServiceUnregistered(NsdServiceInfo serviceInfo) {
 
         }
     };
+    private TvWebSocketServer tvWebSocketServer;
 
     /**
      * Called when the activity is first created.
@@ -63,31 +58,30 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         new Thread(new Runnable() {
             @Override public void run() {
                 // Initialize a server socket on the next available port.
                 try {
-                    mServerSocket = new ServerSocket(0);
+                    // Initialize a server socket on the next available port.
+                    ServerSocket serverSocket = new ServerSocket(0);
+                    serverSocket.setReuseAddress(true);
                     // Store the chosen port.
-                    mLocalPort = mServerSocket.getLocalPort();
-                    registerService(mLocalPort);
-
-                    //Server is running always. This is done using this while(true) loop
-                    while (true) {
-                        //Reading the message from the client
-                        Socket socket = mServerSocket.accept();
-                        InputStream is = socket.getInputStream();
-                        InputStreamReader isr = new InputStreamReader(is);
-                        BufferedReader br = new BufferedReader(isr);
-                        final String text = br.readLine();
-                        runOnUiThread(new Runnable() {
-                            @Override public void run() {
-                                ((TextView) findViewById(R.id.main_browse_fragment)).setText(text);
-                            }
-                        });
-
-                    }
+                    int localPort = serverSocket.getLocalPort();
+                    serverSocket.close();
+                    InetSocketAddress serverAdress = new InetSocketAddress(serverSocket.getInetAddress(), localPort);
+                    tvWebSocketServer = new TvWebSocketServer(serverAdress);
+                    tvWebSocketServer.start();
+                    tvWebSocketServer.setOnMessageListener(new TvWebSocketServer.OnMessageListener() {
+                        @Override public void onMessage(final String message) {
+                            runOnUiThread(new Runnable() {
+                                @Override public void run() {
+                                    TextView textView = (TextView) findViewById(R.id.main_browse_fragment);
+                                    textView.setText(textView.getText() + " " + message);
+                                }
+                            });
+                        }
+                    });
+                    registerService(localPort);
                 } catch (Exception e) {
                     // TODO
                 }

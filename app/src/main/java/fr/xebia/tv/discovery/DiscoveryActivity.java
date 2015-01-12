@@ -9,16 +9,16 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import org.java_websocket.client.WebSocketClient;
+
 import java.net.InetAddress;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import butterknife.OnItemClick;
+import timber.log.Timber;
 
 
 public class DiscoveryActivity extends Activity {
@@ -95,11 +95,13 @@ public class DiscoveryActivity extends Activity {
                 new Thread(new Runnable() {
                     @Override public void run() {
                         try {
-                            Socket socket = new Socket(host, port);
-                            PrintWriter out =  new PrintWriter(socket.getOutputStream(), true);
-                            out.println("Coucou");
-                        } catch (IOException e) {
+                            WebSocketClient webSocketClient = new TvWebSocketClient(host, port);
+                            if (webSocketClient.connectBlocking()) {
+                                webSocketClient.send("Coucou");
+                            }
+                        } catch (Exception e) {
                             // TODO
+                            Timber.e(e, "Uh oh!");
                         }
                     }
                 }).start();
