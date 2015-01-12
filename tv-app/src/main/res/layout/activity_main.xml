@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.joanzapata.pdfview.PDFView
+<!--<com.joanzapata.pdfview.PDFView-->
+<!--xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--android:id="@+id/pdfview"-->
+<!--android:layout_width="match_parent"-->
+<!--android:layout_height="match_parent"/>-->
+<ViewFlipper
+    android:id="@+id/switcher"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/pdfview"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"/>
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/image1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerInside"
+        android:src="@drawable/slides_page_001"/>
+
+    <ImageView
+        android:id="@+id/image2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerInside"
+        android:src="@drawable/slides_page_002"/>
+
+    <ImageView
+        android:id="@+id/image3"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerInside"
+        android:src="@drawable/slides_page_003"/>
+</ViewFlipper>

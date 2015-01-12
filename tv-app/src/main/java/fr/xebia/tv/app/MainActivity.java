@@ -20,6 +20,7 @@ import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ViewFlipper;
 
 import com.joanzapata.pdfview.PDFView;
 
@@ -56,6 +57,7 @@ public class MainActivity extends Activity {
     };
     private TvWebSocketServer tvWebSocketServer;
     private PDFView pdfView;
+    private ViewFlipper switcher;
 
     /**
      * Called when the activity is first created.
@@ -65,10 +67,12 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        pdfView = (PDFView) findViewById(R.id.pdfview);
-        pdfView.fromAsset("slides.pdf")
-               .enableSwipe(true)
-               .load();
+//        pdfView = (PDFView) findViewById(R.id.pdfview);
+//        pdfView.fromAsset("slides.pdf")
+//               .enableSwipe(true)
+//               .load();
+        switcher = (ViewFlipper) findViewById(R.id.switcher);
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -89,11 +93,14 @@ public class MainActivity extends Activity {
                             runOnUiThread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    Log.i("TV", "Received message " + message);
+                                    Log.i("TV", "Received message before " + message);
                                     String[] split = message.split(":");
                                     if (split.length == 2) {
-                                        pdfView.jumpTo(Integer.valueOf(split[1]));
+//                                        pdfView.jumpTo(Integer.valueOf(split[1]));
+                                        switcher.showNext();
+
                                     }
+                                    Log.i("TV", "Received message after " + message);
                                 }
                             });
                         }

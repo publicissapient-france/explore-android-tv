@@ -101,8 +101,9 @@ public class DiscoveryActivity extends Activity {
                            @Override
                            public void run() {
                                if (webSocketClient != null) {
-                                   Log.i(TAG, "Sending page " + page);
+                                   Log.i(TAG, "Sending page before " + page);
                                    webSocketClient.send("page:" + page);
+                                   Log.i(TAG, "Sending page after " + page);
                                }
                            }
                        }).start();
