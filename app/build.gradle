@@ -25,6 +25,7 @@ dependencies {
     compile(
             'com.jakewharton.timber:timber:2.5.0',
             'com.jakewharton:butterknife:6.0.0',
+            'com.joanzapata.pdfview:android-pdfview:1.0.+@aar',
             'org.java-websocket:Java-WebSocket:1.3.0'
     )
 }

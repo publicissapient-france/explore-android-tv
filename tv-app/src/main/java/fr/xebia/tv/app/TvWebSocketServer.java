@@ -10,29 +10,29 @@ public class TvWebSocketServer extends WebSocketServer {
 
     private OnMessageListener onMessageListener;
 
-
     public TvWebSocketServer(InetSocketAddress address) {
         super(address);
     }
 
-
-
-    @Override public void onOpen(WebSocket conn, ClientHandshake handshake) {
-
-    }
-
-    @Override public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+    @Override
+    public void onOpen(WebSocket conn, ClientHandshake handshake) {
 
     }
 
-    @Override public void onMessage(WebSocket conn, String message) {
+    @Override
+    public void onClose(WebSocket conn, int code, String reason, boolean remote) {
+
+    }
+
+    @Override
+    public void onMessage(WebSocket conn, String message) {
         if (onMessageListener != null) {
             onMessageListener.onMessage(message);
         }
-        conn.send("Hey");
     }
 
-    @Override public void onError(WebSocket conn, Exception ex) {
+    @Override
+    public void onError(WebSocket conn, Exception ex) {
 
     }
 

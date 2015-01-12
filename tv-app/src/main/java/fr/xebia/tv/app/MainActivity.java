@@ -19,7 +19,9 @@ import android.content.Context;
 import android.net.nsd.NsdManager;
 import android.net.nsd.NsdServiceInfo;
 import android.os.Bundle;
-import android.widget.TextView;
+import android.util.Log;
+
+import com.joanzapata.pdfview.PDFView;
 
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -32,23 +34,28 @@ public class MainActivity extends Activity {
     private NsdManager mNsdManager;
 
     private NsdManager.RegistrationListener mRegistrationListener = new NsdManager.RegistrationListener() {
-        @Override public void onRegistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
+        @Override
+        public void onRegistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
 
         }
 
-        @Override public void onUnregistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
+        @Override
+        public void onUnregistrationFailed(NsdServiceInfo serviceInfo, int errorCode) {
 
         }
 
-        @Override public void onServiceRegistered(NsdServiceInfo serviceInfo) {
+        @Override
+        public void onServiceRegistered(NsdServiceInfo serviceInfo) {
 
         }
 
-        @Override public void onServiceUnregistered(NsdServiceInfo serviceInfo) {
+        @Override
+        public void onServiceUnregistered(NsdServiceInfo serviceInfo) {
 
         }
     };
     private TvWebSocketServer tvWebSocketServer;
+    private PDFView pdfView;
 
     /**
      * Called when the activity is first created.
@@ -58,8 +65,13 @@ public class MainActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        pdfView = (PDFView) findViewById(R.id.pdfview);
+        pdfView.fromAsset("slides.pdf")
+               .enableSwipe(true)
+               .load();
         new Thread(new Runnable() {
-            @Override public void run() {
+            @Override
+            public void run() {
                 // Initialize a server socket on the next available port.
                 try {
                     // Initialize a server socket on the next available port.
@@ -72,11 +84,16 @@ public class MainActivity extends Activity {
                     tvWebSocketServer = new TvWebSocketServer(serverAdress);
                     tvWebSocketServer.start();
                     tvWebSocketServer.setOnMessageListener(new TvWebSocketServer.OnMessageListener() {
-                        @Override public void onMessage(final String message) {
+                        @Override
+                        public void onMessage(final String message) {
                             runOnUiThread(new Runnable() {
-                                @Override public void run() {
-                                    TextView textView = (TextView) findViewById(R.id.main_browse_fragment);
-                                    textView.setText(textView.getText() + " " + message);
+                                @Override
+                                public void run() {
+                                    Log.i("TV", "Received message " + message);
+                                    String[] split = message.split(":");
+                                    if (split.length == 2) {
+                                        pdfView.jumpTo(Integer.valueOf(split[1]));
+                                    }
                                 }
                             });
                         }
@@ -101,7 +118,8 @@ public class MainActivity extends Activity {
         mNsdManager.registerService(serviceInfo, NsdManager.PROTOCOL_DNS_SD, mRegistrationListener);
     }
 
-    @Override protected void onDestroy() {
+    @Override
+    protected void onDestroy() {
         super.onDestroy();
         mNsdManager.unregisterService(mRegistrationListener);
     }
